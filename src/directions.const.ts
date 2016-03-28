@@ -1,0 +1,1 @@
+export const DIRECTIONS = {UP: 'up', LEFT: 'left', DIAG: 'diag'};
