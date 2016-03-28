@@ -7,3 +7,5 @@ This is a small project that computes the dynamic programming matrices for any t
 
 In addition, it computes the traceback for these matrices and present the optimal alignment.
 <br>That project handled as an homework assignment for the course: "Algorithms in Computational Biology".
+
+<br><br>Enjoy!

@@ -4,6 +4,7 @@
   "description": "Find the optimal alignment between two sequences",
   "main": "config.js",
   "scripts": {
+    "deploy": "git checkout gh-pages && git rebase master && git push && git checkout master",
     "start": "node_modules/.bin/live-server",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
