@@ -17,6 +17,9 @@ export class ToArrayPipe implements PipeTransform {
     }
   `],
   template: `
+    <p> S': {{finalS}} </p>
+    <p> T': {{finalT}} </p>
+
     <table class="table" *ngIf="matrix">
       <tr>
         <td> <td>
@@ -25,7 +28,7 @@ export class ToArrayPipe implements PipeTransform {
       <tr *ngFor="#row of (matrix | toArrayPipe); #i = index">
         <td *ngIf="i == 0"> </td>
         <td *ngIf="i > 0"> {{sequenceS[i-1]}} </td>
-        <td *ngFor="#cell of row" [class.success]="cell.trace">
+        <td *ngFor="#cell of row" [class.trace-cell]="cell.trace">
           <i class="glyphicon glyphicon-arrow-up" *ngIf="cell.direction == 'up'"> </i>
           <i class="glyphicon glyphicon-arrow-left" *ngIf="cell.direction == 'left'"> </i>
           <i class="glyphicon glyphicon-arrow-up diagonal" *ngIf="cell.direction == 'diag'"> </i>
@@ -33,9 +36,6 @@ export class ToArrayPipe implements PipeTransform {
         </td>
       </tr>
     </table>
-
-    <p> S': {{finalS}} </p>
-    <p> T': {{finalT}} </p>
   `,
 })
 export class TableComponent {

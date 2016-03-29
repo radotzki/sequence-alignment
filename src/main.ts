@@ -11,37 +11,39 @@ import {Observable} from 'rxjs/Observable';
   providers: [SequenceAlignment],
   template: `
   <section class="container">
-    <h1> Sequence Alignment </h1>
-    <form [ngFormModel]="form" novalidate>
-      <div class="form-group">
-        <label>Sequence S:</label>
-        <input type="text" ngControl="sequenceS" #sequenceS class="form-control">
-      </div>
-
-      <div class="form-group">
-        <label>Sequence T:</label>
-        <input type="text" ngControl="sequenceT" #sequenceT class="form-control">
-      </div>
-
-      <div class="row">
-        <div class="form-group col-sm-4">
-          <label>Match score:</label>
-          <input type="number" ngControl="match" class="form-control">
+    <section class="form-container">
+        <h1> Sequence Alignment </h1>
+        <form [ngFormModel]="form" novalidate>
+        <div class="form-group">
+            <label>Sequence S:</label>
+            <input type="text" ngControl="sequenceS" #sequenceS class="form-control">
         </div>
 
-        <div class="form-group col-sm-4">
-          <label>Mismatch score:</label>
-          <input type="number" ngControl="mismatch" class="form-control">
+        <div class="form-group">
+            <label>Sequence T:</label>
+            <input type="text" ngControl="sequenceT" #sequenceT class="form-control">
         </div>
 
-        <div class="form-group col-sm-4">
-          <label>Gap score:</label>
-          <input type="number" ngControl="gap" class="form-control">
-        </div>
-      </div>
-    </form>
+        <div class="row">
+            <div class="form-group col-sm-4">
+            <label>Match score:</label>
+            <input type="number" ngControl="match" class="form-control">
+            </div>
 
-    <section *ngIf="nwMatrix">
+            <div class="form-group col-sm-4">
+            <label>Mismatch score:</label>
+            <input type="number" ngControl="mismatch" class="form-control">
+            </div>
+
+            <div class="form-group col-sm-4">
+            <label>Gap score:</label>
+            <input type="number" ngControl="gap" class="form-control">
+            </div>
+        </div>
+        </form>
+    </section>
+
+    <section class="matrix" *ngIf="nwMatrix">
       <h3> Needleman-Wunsch </h3>
       <table-component
         [matrix]="nwMatrix"
@@ -52,7 +54,7 @@ import {Observable} from 'rxjs/Observable';
       </table-component>
     </section>
 
-    <section *ngIf="swMatrix">
+    <section class="matrix" *ngIf="swMatrix">
       <h3> Smith-Waterman </h3>
       <table-component
         [matrix]="swMatrix"
@@ -63,7 +65,7 @@ import {Observable} from 'rxjs/Observable';
       </table-component>
     </section>
 
-    <section *ngIf="oaMatrix">
+    <section class="matrix" *ngIf="oaMatrix">
       <h3> Overlap-Alignment </h3>
       <table-component
         [matrix]="oaMatrix"

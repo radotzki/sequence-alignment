@@ -1,9 +1,16 @@
 <!DOCTYPE html>
 <html>
 
-  <head>
+<head>
     <title>Sequence Alignment build with angular2</title>
-    <link data-require="bootstrap-css@3.3.6" data-semver="3.3.6" rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.css" />
+
+    <!-- Loading Indicator -->
+    <style type="text/css">
+        .sk-rotating-plane--wrapper{background-color:#ff5722;width: 100%;height: 100%;position: absolute;}.sk-rotating-plane{width:40px;height:40px;background-color:#ffd740;margin:-20px auto 40px -20px;-webkit-animation:sk-rotatePlane 1.2s infinite ease-in-out;animation:sk-rotatePlane 1.2s infinite ease-in-out;position:fixed;top:50%;left:50%}@-webkit-keyframes sk-rotatePlane{0%{-webkit-transform:perspective(120px) rotateX(0) rotateY(0);transform:perspective(120px) rotateX(0) rotateY(0)}50%{-webkit-transform:perspective(120px) rotateX(-180.1deg) rotateY(0);transform:perspective(120px) rotateX(-180.1deg) rotateY(0)}100%{-webkit-transform:perspective(120px) rotateX(-180deg) rotateY(-179.9deg);transform:perspective(120px) rotateX(-180deg) rotateY(-179.9deg)}}@keyframes sk-rotatePlane{0%{-webkit-transform:perspective(120px) rotateX(0) rotateY(0);transform:perspective(120px) rotateX(0) rotateY(0)}50%{-webkit-transform:perspective(120px) rotateX(-180.1deg) rotateY(0);transform:perspective(120px) rotateX(-180.1deg) rotateY(0)}100%{-webkit-transform:perspective(120px) rotateX(-180deg) rotateY(-179.9deg);transform:perspective(120px) rotateX(-180deg) rotateY(-179.9deg)}}
+    </style>
+
+    <link data-require="bootstrap-css@3.3.6" data-semver="3.3.6" rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.css"/>
+    <link rel="stylesheet" href="src/style.css"/>
     <script src="https://code.angularjs.org/tools/system.js"></script>
     <script src="https://code.angularjs.org/tools/typescript.js"></script>
     <script src="https://cdn.jsdelivr.net/lodash/4.6.1/lodash.min.js"></script>
@@ -12,15 +19,17 @@
     <script src="https://code.angularjs.org/2.0.0-beta.9/Rx.js"></script>
     <script src="https://code.angularjs.org/2.0.0-beta.9/angular2.js"></script>
     <script>
-    System.import('app')
+        System.import('app')
       .catch(console.error.bind(console));
-  </script>
-  </head>
+    </script>
+</head>
 
-  <body>
+<body>
     <app>
-    loading...
-  </app>
-  </body>
+        <div class="sk-rotating-plane--wrapper">
+            <div class="sk-rotating-plane"></div>
+        </div>
+    </app>
+</body>
 
 </html>
