@@ -67,36 +67,63 @@ export class SequenceAlignment {
     }
 
     NWScore(sequenceS, sequenceT, match, mismatch, gap) {
-        const numCols = sequenceT.length + 1;//Math.min(sequenceS.length, sequenceT.length) + 1;
-        const numRows = sequenceS.length + 1;//Math.max(sequenceS.length, sequenceT.length) + 1;
-        const mat = Matrix({ rows: 2, columns: numCols });
+        if (sequenceS.length > sequenceT.length) {
+            const numCols = sequenceT.length + 1;
+            const numRows = sequenceS.length + 1;
+            const mat = Matrix({ rows: 2, columns: numCols });
 
-        // init first row
-        for (let col = 1; col < numCols; col++) {
-            mat[1][col] = { value: mat[1][col - 1].value + gap };
-        }
-
-        // fill matrix
-        for (let row = 1; row < numRows; row++) {
-            // copy previous values
-            for (let col = 0; col < numCols; col++) {
-                mat[0][col] = _.clone(mat[1][col]);
-            }
-
-            mat[1][0] = { value: mat[0][0].value + gap };
+            // init first row
             for (let col = 1; col < numCols; col++) {
-                const up = mat[0][col].value + gap;
-                const left = mat[1][col - 1].value + gap;
-                const isMatch = (numRows == sequenceS.length + 1) ?
-                    sequenceS[row - 1] == sequenceT[col - 1] :
-                    sequenceS[col - 1] == sequenceT[row - 1];
-                const diagonal = mat[0][col - 1].value + (isMatch ? match : mismatch);
-
-                mat[1][col] = { value: Math.max(up, left, diagonal) };
+                mat[1][col] = { value: mat[1][col - 1].value + gap };
             }
-        }
 
-        return mat[1];
+            // fill matrix
+            for (let row = 1; row < numRows; row++) {
+                // copy previous values
+                for (let col = 0; col < numCols; col++) {
+                    mat[0][col] = _.clone(mat[1][col]);
+                }
+
+                mat[1][0] = { value: mat[0][0].value + gap };
+                for (let col = 1; col < numCols; col++) {
+                    const up = mat[0][col].value + gap;
+                    const left = mat[1][col - 1].value + gap;
+                    const diagonal = mat[0][col - 1].value + (sequenceS[row - 1] == sequenceT[col - 1] ? match : mismatch);
+
+                    mat[1][col] = { value: Math.max(up, left, diagonal) };
+                }
+            }
+
+            return mat[1];
+        } else {
+            const numCols = sequenceS.length + 1;
+            const numRows = sequenceT.length + 1;
+            const mat = Matrix({ rows: numRows, columns: 2 });
+
+            // init first column
+            for (let row = 1; row < numRows; row++) {
+                mat[row][1] = { value: mat[row - 1][1].value + gap };
+            }
+
+            // fill matrix
+            for (let col = 1; col < numCols; col++) {
+                // copy previous values
+                for (let row = 0; row < numRows; row++) {
+                    mat[row][0] = _.clone(mat[row][1]);
+                }
+
+                mat[0][1] = { value: mat[0][0].value + gap };
+                for (let row = 1; row < numRows; row++) {
+                    const up = mat[row][0].value + gap;
+                    const left = mat[row - 1][1].value + gap;
+                    const diagonal = mat[row - 1][0].value + (sequenceS[col - 1] == sequenceT[row - 1] ? match : mismatch);
+
+                    mat[row][1] = { value: Math.max(up, left, diagonal) };
+                }
+            }
+
+            return _.map(mat, col => col[1]);
+        }
     }
 
     PartitionY(scoreL, scoreR) {
