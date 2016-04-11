@@ -17,8 +17,9 @@ export class ToArrayPipe implements PipeTransform {
     }
   `],
   template: `
-    <p> S': {{finalS}} </p>
-    <p> T': {{finalT}} </p>
+    <p> S': {{finalT}} </p>
+    <p> T': {{finalS}} </p>
+    <p> Score: {{score}} </p>
 
     <table class="table" *ngIf="matrix">
       <tr>
@@ -44,6 +45,7 @@ export class TableComponent {
   @Input() sequenceS;
   @Input() finalT;
   @Input() finalS;
+  @Input() score;
 
   constructor() { }
 }
