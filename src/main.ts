@@ -3,12 +3,13 @@ import {Component, enableProdMode, OnInit} from 'angular2/core';
 import {FormBuilder, Validators} from 'angular2/common';
 import {TableComponent} from './table.component';
 import {SequenceAlignment} from './sequenceAlignment.service';
+import {LinearSpace} from './linearSpace.service';
 import {Observable} from 'rxjs/Observable';
 
 @Component({
     selector: 'app',
     directives: [TableComponent],
-    providers: [SequenceAlignment],
+    providers: [SequenceAlignment, LinearSpace],
     template: `
   <section class="container">
     <section class="form-container">
@@ -49,6 +50,15 @@ import {Observable} from 'rxjs/Observable';
         [finalT]="hbFinalS"
         [finalS]="hbFinalT"
         [score]="hbScore">
+      </table-component>
+    </section>
+
+    <section class="matrix" *ngIf="lalsFinalS && lalsFinalT">
+      <h3> Local Alignment in Linear Space </h3>
+      <table-component
+        [finalT]="lalsFinalS"
+        [finalS]="lalsFinalT"
+        [score]="lalsScore">
       </table-component>
     </section>
 
@@ -95,6 +105,7 @@ class App implements OnInit {
 
     constructor(
         private _sequenceAlignment: SequenceAlignment,
+        private _linearSpace: LinearSpace,
         private _formBuilder: FormBuilder
     ) { }
 
@@ -123,10 +134,12 @@ class App implements OnInit {
         [this.nwFinalS, this.nwFinalT, this.nwScore, this.nwMatrix] = this._sequenceAlignment.calculate(sequenceS, sequenceT, match, mismatch, gap, { nw: true });
         [this.swFinalS, this.swFinalT, this.swScore, this.swMatrix] = this._sequenceAlignment.calculate(sequenceS, sequenceT, match, mismatch, gap, { sw: true });
         [this.oaFinalS, this.oaFinalT, this.oaScore, this.oaMatrix] = this._sequenceAlignment.calculate(sequenceS, sequenceT, match, mismatch, gap, { oa: true });
-        [this.hbFinalS, this.hbFinalT, this.hbScore] = this._sequenceAlignment.calculate(sequenceS, sequenceT, match, mismatch, gap, { hb: true });
+        [this.hbFinalS, this.hbFinalT, this.hbScore] = this._linearSpace.calc(sequenceS, sequenceT, match, mismatch, gap, {hb: true});
+        [this.lalsFinalS, this.lalsFinalT, this.lalsScore] = this._linearSpace.calc(sequenceS, sequenceT, match, mismatch, gap, {la: true});
 
-        // just for test:
-        const [hbFinalStest, hbFinalTtest, hbScoreTest] = this._sequenceAlignment.calculate('AGTACGCA', 'TATGC', 2, -1, -2, { hb: true });
+        // Tests (too lazy to config Karma)
+        // Hirschberg
+        const [hbFinalStest, hbFinalTtest, hbScoreTest] = this._linearSpace.calc('AGTACGCA', 'TATGC', 2, -1, -2, {hb: true});
         if (hbFinalStest !== 'AGTACGCA' ||
             hbFinalTtest !== '--TATGC-' ||
             hbScoreTest !== 1) {
@@ -136,12 +149,35 @@ class App implements OnInit {
             console.log('score: ', hbScoreTest);
         }
 
+        // Hirschberg
         const [nwFinalStest2, nwFinalTtest2, nwScoreTest2, nwmatTest2] = this._sequenceAlignment.calculate('GATTAAGCCAAGGTTCCCCG', 'AATCTAATCCAGGTTCGCG', 2, -2, -3, { nw: true });
-        const [hbFinalStest2, hbFinalTtest2, hbScoreTest2] = this._sequenceAlignment.calculate('GATTAAGCCAAGGTTCCCCG', 'AATCTAATCCAGGTTCGCG', 2, -2, -3, { hb: true });
+        const [hbFinalStest2, hbFinalTtest2, hbScoreTest2] = this._linearSpace.calc('GATTAAGCCAAGGTTCCCCG', 'AATCTAATCCAGGTTCGCG', 2, -2, -3, {hb: true});
         if (nwScoreTest2 !== hbScoreTest2) {
             console.log('test error!');
             console.log('nw score: ', nwScoreTest2);
             console.log('hb score: ', hbScoreTest2);
+        }
+
+        // local alignment linear space
+        const [lalsFinalSTest, lalsFinalTTest, lalsScoreTest] = this._linearSpace.calc('GATTAAGCCAAGGTTC', 'CTAATCCAGGT', 2, -2, -3, {la: true});
+        if (lalsFinalSTest != 'TAAGCCAAGGT' ||
+            lalsFinalTTest != 'TAATCCA-GGT' ||
+            lalsScoreTest != 13) {
+            console.log('test error!');
+            console.log('lals s: ', lalsFinalSTest);
+            console.log('lals t: ', lalsFinalTTest);
+            console.log('score: ', lalsScoreTest);
+        }
+
+        // local alignment linear space
+        const [lalsFinalSTest2, lalsFinalTTest2, lalsScoreTest2] = this._linearSpace.calc('AGTACGCA', 'TATGC', 2, -1, -2, {la: true});
+        if (lalsFinalSTest2 !== 'TACGC' ||
+            lalsFinalTTest2 !== 'TATGC' ||
+            lalsScoreTest2 !== 7) {
+            console.log('test error! local alignment linear space');
+            console.log('s: ', lalsFinalSTest2);
+            console.log('t: ', lalsFinalTTest2);
+            console.log('score: ', lalsScoreTest2);
         }
     }
 }

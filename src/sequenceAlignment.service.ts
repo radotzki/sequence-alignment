@@ -2,17 +2,13 @@ import {Injectable} from 'angular2/core';
 import {DIRECTIONS} from './directions.const';
 import {Matrix, matrixMaxValueLocation, matrixFrameMaxValueLocation} from './matrix';
 
+@Injectable()
 export class SequenceAlignment {
-    calculate(sequenceS, sequenceT, match, mismatch, gap, {nw, sw, oa, hb}) {
-        let finalS, finalT, matrix;
-        if (hb) {
-            [finalS, finalT] = this.Hirschberg(sequenceS, sequenceT, match, mismatch, gap);
-        } else {
-            const rawMatrix = this.buildMatrix(sequenceS, sequenceT, match, mismatch, gap, { nw, sw, oa });
-            [matrix, finalS, finalT] = this.traceBack(sequenceS, sequenceT, rawMatrix, { nw, sw, oa });
-        }
-
+    calculate(sequenceS, sequenceT, match, mismatch, gap, {nw, sw, oa, hb, lals}) {
+        const rawMatrix = this.buildMatrix(sequenceS, sequenceT, match, mismatch, gap, { nw, sw, oa });
+        const [matrix, finalS, finalT] = this.traceBack(sequenceS, sequenceT, rawMatrix, { nw, sw, oa });
         const score = this.finalScore(finalS, finalT, match, mismatch, gap);
+
         return [finalS, finalT, score, matrix];
     }
 
@@ -32,116 +28,7 @@ export class SequenceAlignment {
         return score;
     }
 
-    Hirschberg(sequenceS, sequenceT, match, mismatch, gap) {
-        let finalS = '';
-        let finalT = '';
-
-        if (sequenceS.length == 0) {
-            for (let i = 0; i < sequenceT.length; i++) {
-                finalS += '-';
-                finalT += sequenceT[i];
-            }
-        } else if (sequenceT.length == 0) {
-            for (let i = 0; i < sequenceS.length; i++) {
-                finalS += sequenceS[i];
-                finalT += '-';
-            }
-        } else if (sequenceS.length == 1 || sequenceT.length == 1) {
-            [finalS, finalT] = this.calculate(sequenceS, sequenceT, match, mismatch, gap, { nw: true });
-        } else {
-            const slen = sequenceS.length;
-            const smid = sequenceS.length / 2;
-            const tlen = sequenceT.length;
-
-            const scoreL = this.NWScore(sequenceS.substring(0, smid), sequenceT, match, mismatch, gap);
-            const scoreR = this.NWScore(this._reverseString(sequenceS.substring(smid, slen)), this._reverseString(sequenceT), match, mismatch, gap);
-            const ymid = this.PartitionY(scoreL, scoreR);
-
-            const [finalS1, finalT1] = this.Hirschberg(sequenceS.substring(0, smid), sequenceT.substring(0, ymid), match, mismatch, gap);
-            const [finalS2, finalT2] = this.Hirschberg(sequenceS.substring(smid, slen), sequenceT.substring(ymid, tlen), match, mismatch, gap);
-            finalS = finalS1 + finalS2;
-            finalT = finalT1 + finalT2;
-        }
-
-        return [finalS, finalT];
-    }
-
-    NWScore(sequenceS, sequenceT, match, mismatch, gap) {
-        if (sequenceS.length > sequenceT.length) {
-            const numCols = sequenceT.length + 1;
-            const numRows = sequenceS.length + 1;
-            const mat = Matrix({ rows: 2, columns: numCols });
-
-            // init first row
-            for (let col = 1; col < numCols; col++) {
-                mat[1][col] = { value: mat[1][col - 1].value + gap };
-            }
-
-            // fill matrix
-            for (let row = 1; row < numRows; row++) {
-                // copy previous values
-                for (let col = 0; col < numCols; col++) {
-                    mat[0][col] = _.clone(mat[1][col]);
-                }
-
-                mat[1][0] = { value: mat[0][0].value + gap };
-                for (let col = 1; col < numCols; col++) {
-                    const up = mat[0][col].value + gap;
-                    const left = mat[1][col - 1].value + gap;
-                    const diagonal = mat[0][col - 1].value + (sequenceS[row - 1] == sequenceT[col - 1] ? match : mismatch);
-
-                    mat[1][col] = { value: Math.max(up, left, diagonal) };
-                }
-            }
-
-            return mat[1];
-        } else {
-            const numCols = sequenceS.length + 1;
-            const numRows = sequenceT.length + 1;
-            const mat = Matrix({ rows: numRows, columns: 2 });
-
-            // init first column
-            for (let row = 1; row < numRows; row++) {
-                mat[row][1] = { value: mat[row - 1][1].value + gap };
-            }
-
-            // fill matrix
-            for (let col = 1; col < numCols; col++) {
-                // copy previous values
-                for (let row = 0; row < numRows; row++) {
-                    mat[row][0] = _.clone(mat[row][1]);
-                }
-
-                mat[0][1] = { value: mat[0][0].value + gap };
-                for (let row = 1; row < numRows; row++) {
-                    const up = mat[row][0].value + gap;
-                    const left = mat[row - 1][1].value + gap;
-                    const diagonal = mat[row - 1][0].value + (sequenceS[col - 1] == sequenceT[row - 1] ? match : mismatch);
-
-                    mat[row][1] = { value: Math.max(up, left, diagonal) };
-                }
-            }
-
-            return _.map(mat, col => col[1]);
-        }
-    }
-
-    PartitionY(scoreL, scoreR) {
-        // returns the index of the maximum sum of scoreL and scoreR
-        let maxVal = Number.MIN_SAFE_INTEGER;
-        let maxIndex = 0;
-
-        for (let j = 0; (j < scoreR.length && j < scoreL.length); j++) {
-            if (scoreL[j].value + scoreR[scoreR.length - 1 - j].value > maxVal) {
-                maxVal = scoreL[j].value + scoreR[scoreR.length - 1 - j].value;
-                maxIndex = j;
-            }
-        }
-
-        return maxIndex;
-    }
-
-    buildMatrix(sequenceS, sequenceT, match, mismatch, gap, {nw, sw, oa}) {
+    private buildMatrix(sequenceS, sequenceT, match, mismatch, gap, {nw, sw, oa}) {
         // init matrix with zeros
         const numRows = sequenceS.length + 1;
         const numCols = sequenceT.length + 1;
@@ -205,7 +92,7 @@ export class SequenceAlignment {
         return mat;
     }
 
-    traceBack(sequenceS, sequenceT, matrix, {nw, sw, oa}) {
+    private traceBack(sequenceS, sequenceT, matrix, {nw, sw, oa}) {
         let finalS = '';
         let finalT = '';
         let shouldStop;
