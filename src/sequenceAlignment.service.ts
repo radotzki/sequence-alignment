@@ -4,7 +4,7 @@ import {Matrix, matrixMaxValueLocation, matrixFrameMaxValueLocation} from './mat
 
 @Injectable()
 export class SequenceAlignment {
-    calculate(sequenceS, sequenceT, match, mismatch, gap, {nw, sw, oa, hb, lals}) {
+    calculate(sequenceS, sequenceT, match, mismatch, gap, { nw, sw, oa }) {
         const rawMatrix = this.buildMatrix(sequenceS, sequenceT, match, mismatch, gap, { nw, sw, oa });
         const [matrix, finalS, finalT] = this.traceBack(sequenceS, sequenceT, rawMatrix, { nw, sw, oa });
         const score = this.finalScore(finalS, finalT, match, mismatch, gap);

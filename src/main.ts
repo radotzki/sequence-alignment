@@ -4,12 +4,13 @@ import {FormBuilder, Validators} from 'angular2/common';
 import {TableComponent} from './table.component';
 import {SequenceAlignment} from './sequenceAlignment.service';
 import {LinearSpace} from './linearSpace.service';
+import {SumHomology} from './sumHomology.service';
 import {Observable} from 'rxjs/Observable';
 
 @Component({
     selector: 'app',
     directives: [TableComponent],
-    providers: [SequenceAlignment, LinearSpace],
+    providers: [SequenceAlignment, LinearSpace, SumHomology],
     template: `
   <section class="container">
     <section class="form-container">
@@ -97,6 +98,11 @@ import {Observable} from 'rxjs/Observable';
         [score]="oaScore">
       </table-component>
     </section>
+
+    <section class="matrix" *ngIf="sumHomologyScore">
+      <h3> Sum Homology </h3>
+      <p> Score: {{sumHomologyScore}} </p>
+    </section>
   </section>
   `,
 })
@@ -106,6 +112,7 @@ class App implements OnInit {
     constructor(
         private _sequenceAlignment: SequenceAlignment,
         private _linearSpace: LinearSpace,
+        private _sumHomology: SumHomology,
         private _formBuilder: FormBuilder
     ) { }
 
@@ -136,8 +143,10 @@ class App implements OnInit {
         [this.oaFinalS, this.oaFinalT, this.oaScore, this.oaMatrix] = this._sequenceAlignment.calculate(sequenceS, sequenceT, match, mismatch, gap, { oa: true });
         [this.hbFinalS, this.hbFinalT, this.hbScore] = this._linearSpace.calc(sequenceS, sequenceT, match, mismatch, gap, {hb: true});
         [this.lalsFinalS, this.lalsFinalT, this.lalsScore] = this._linearSpace.calc(sequenceS, sequenceT, match, mismatch, gap, {la: true});
+        [this.sumHomologyMatrix, this.sumHomologyScore] = this._sumHomology.calc(sequenceS, sequenceT, 32/160, 2/160, 1/160);
 
-        // Tests (too lazy to config Karma)
+
+        // Tests
         // Hirschberg
         const [hbFinalStest, hbFinalTtest, hbScoreTest] = this._linearSpace.calc('AGTACGCA', 'TATGC', 2, -1, -2, {hb: true});
         if (hbFinalStest !== 'AGTACGCA' ||
@@ -182,6 +191,6 @@ class App implements OnInit {
     }
 }
 
-// enableProdMode();
+enableProdMode();
 bootstrap(App)
     .catch(err => console.error(err));

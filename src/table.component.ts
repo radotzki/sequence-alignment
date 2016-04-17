@@ -17,9 +17,9 @@ export class ToArrayPipe implements PipeTransform {
     }
   `],
   template: `
-    <p> S': {{finalT}} </p>
-    <p> T': {{finalS}} </p>
-    <p> Score: {{score}} </p>
+    <p *ngIf="finalT"> S': {{finalT}} </p>
+    <p *ngIf="finalS"> T': {{finalS}} </p>
+    <p *ngIf="score"> Score: {{score}} </p>
 
     <table class="table" *ngIf="matrix">
       <tr>
